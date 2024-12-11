@@ -1,6 +1,6 @@
 data:
-  train_path: "C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\data\\train.csv"
-  scoring_path: "C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\data\\score.csv"
+  train_path: "./data/train.csv"
+  scoring_path: "./data/score.csv"
   train_expected_columns: ["y", "x1", "x2", "x3", "x4", "x5", "x6", "x7"]
   scoring_expected_columns: ["x1", "x2", "x3", "x4", "x5", "x6", "x7"]
 
@@ -9,12 +9,12 @@ preprocessing:
   categorical_features: ["x3", "x6", "x7"]
 
 model:
-  model_path: "C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\models\\logistic_regression.pkl"
-  metrics_path: "C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\models\\metrics.yaml"
-  preprocessor_path: "C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\models\\preprocessor.pkl"
+  model_path: "./models/logistic_regression.pkl"
+  metrics_path: "./models/metrics.yaml"
+  preprocessor_path: "./models/preprocessor.pkl"
 
 random_state: 42
 
 scoring:
-  predictions_output_path: "C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\models\\predictions.csv"
+  predictions_output_path: "./models/predictions.csv"
 

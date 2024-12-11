@@ -1,8 +1,16 @@
 import yaml
+import os
+import sys
+
+# Agregar la carpeta 'src' al sistema de rutas
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_DIR = os.path.join(BASE_DIR, "src")
+sys.path.append(SRC_DIR)
+
 from data_loader import load_training_data, load_scoring_data
 
-# Cambiar a la ruta absoluta de config.yaml
-config_path = "C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\src\\config.yaml"
+# Ruta al archivo config.yaml
+config_path = os.path.join(SRC_DIR, "config.yaml")
 
 # Cargar configuración
 with open(config_path, "r") as f:
@@ -17,4 +25,5 @@ print(train_data.head())  # Mostrar las primeras filas del dataset de entrenamie
 print("\nCargando datos de scoring...")
 scoring_data = load_scoring_data(config)
 print(scoring_data.head())  # Mostrar las primeras filas del dataset de scoring
+
 

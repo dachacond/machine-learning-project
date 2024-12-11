@@ -1,30 +1,30 @@
 classification_report:
   '0':
-    f1-score: 0.5890318212593094
-    precision: 0.5708661417322834
-    recall: 0.6083916083916084
-    support: 715
+    f1-score: 0.5895875591615957
+    precision: 0.5706806282722513
+    recall: 0.6097902097902098
+    support: 715.0
   '1':
-    f1-score: 0.5376999238385376
-    precision: 0.5576619273301737
-    recall: 0.5191176470588236
-    support: 680
+    f1-score: 0.5369946605644547
+    precision: 0.5578446909667195
+    recall: 0.5176470588235295
+    support: 680.0
   accuracy: 0.5648745519713262
   macro avg:
-    f1-score: 0.5633658725489235
-    precision: 0.5642640345312286
-    recall: 0.563754627725216
-    support: 1395
+    f1-score: 0.5632911098630251
+    precision: 0.5642626596194854
+    recall: 0.5637186343068696
+    support: 1395.0
   weighted avg:
-    f1-score: 0.5640098210828758
-    precision: 0.5644296787979217
-    recall: 0.5648745519713263
-    support: 1395
+    f1-score: 0.5639508774081505
+    precision: 0.5644236839226013
+    recall: 0.5648745519713262
+    support: 1395.0
 confusion_matrix:
-- - 435
-  - 280
-- - 327
-  - 353
+- - 436
+  - 279
+- - 328
+  - 352
 roc_auc_score: !!python/object/apply:numpy.core.multiarray.scalar
 - !!python/object/apply:numpy.dtype
   args:
@@ -41,4 +41,4 @@ roc_auc_score: !!python/object/apply:numpy.core.multiarray.scalar
   - -1
   - 0
 - !!binary |
-  oKtoOUUC4z8=
+  UIfc0sMB4z8=

@@ -2,9 +2,15 @@ import logging
 import os
 import yaml
 import pandas as pd
+import sys
+
+# Agregar la carpeta 'src' al sistema de rutas dinámicamente
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_DIR = os.path.join(BASE_DIR, "src")
+sys.path.append(SRC_DIR)
+
 from data_loader import load_scoring_data
 from preprocessor import fit_transformers, preprocess_scoring_data
-from sklearn.pipeline import Pipeline
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -31,7 +37,9 @@ def score_model(config_path: str) -> None:
 
     # Ajustar transformadores (reutilizando configuración del entrenamiento)
     logger.info("Ajustando transformadores para datos de scoring...")
-    preprocessor = fit_transformers(scoring_data, config)
+    preprocessor_path = config['model']['preprocessor_path']
+    logger.info(f"Cargando preprocesador ajustado desde: {preprocessor_path}...")
+    preprocessor = pd.read_pickle(preprocessor_path)
 
     # Preprocesar datos de scoring
     logger.info("Preprocesando datos de scoring...")
@@ -50,4 +58,6 @@ def score_model(config_path: str) -> None:
     logger.info("Scoring completado con éxito.")
 
 if __name__ == "__main__":
-    score_model("C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\src\\config.yaml")
+    # Ruta dinámica al archivo de configuración
+    config_path = os.path.join(SRC_DIR, "config.yaml")
+    score_model(config_path)
