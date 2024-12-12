@@ -1,92 +1,127 @@
-# Interview
+# README: ML Regression Logistic API with Docker
 
-This repo contains instructions, code and data for a take-home assessment.
-Upon receiving this assessment, you should clone this repo to a local
-environment with a [Python installation](https://www.python.org/downloads/).
+## Proyecto: Entrenamiento y Despliegue de un Modelo de Machine Learning
 
-This take home assignment is designed to assess following:
+### Descripción del Proyecto
+Este proyecto entrena un modelo de regresión logística, lo implementa en una API para scoring y lo hace reproducible mediante un contenedor Docker. La API permite preprocesar datos en formato JSON y devolver predicciones basadas en el modelo entrenado.
 
-1. Generalize code to promote code reuse.
-2. Configure code to switch parameters without changing code.
-3. Demonstrate knowledge and experience in moving DS models from notebooks to production.
-4. Prepare the Artifact to deploy in the server/compute VM.
-5. Be prepared to discuss implementation of the model in a Cloud environment (Azure, GCP or AWS).
+---
 
-## Getting Started
+## Estructura del Proyecto
 
-Your starting point will be the [Model_Training.ipynb](notebooks/MLE_Interview_DS.ipynb) notebook provided in
-the `notebooks` directory of this repo.
+![Estructura del Proyecto](/diagrama.png "Estructura del Proyecto")
 
-We ask that you:
+## Etapa 1: Entrenamiento y Scoring del Modelo
 
-1.  Take the model training code within the notebook
-    and create a python codebase that accomplishes the following:
+### Objetivo
+Preparar los datos, entrenar un modelo de regresión logística, y generar predicciones utilizando el modelo entrenado y los datos preprocesados.
 
-    - Trains the model by running a script (a `.py` file, bash or PowerShell script
-      as you prefer).
-      - The script should, at minimum, accept arguments or
-        a configuration file that defines the data location, important model training
-        parameters, and the model save location.
-    - Save the trained model so that it can be reused later.
+### Flujo de Trabajo
+1. **Carga de Datos**:
+   - Archivo: `data/train.csv` para entrenamiento y `data/score.csv` para scoring.
+   - Script: `data_loader.py` carga y valida los datos según las columnas esperadas configuradas en `config.yaml`.
 
-2.  Write a `Dockerfile(s)` which builds a container capable of scoring
-    an array of data sent to the container in the body of a POST request.
+2. **Preprocesamiento de Datos**:
+   - El preprocesamiento incluye:
+     - Imputación de valores faltantes.
+     - Escalado de características numéricas.
+     - Codificación de variables categóricas.
+   - Script: `preprocessor.py` ajusta y aplica transformadores configurados.
 
-    - Your container `build` step should accept an argument denoting the location
-      of a a saved model to be used for scoring.
-    - We should be able to build your Docker image locally and make a POST
-      to a specified route (ie: `http://localhost:8888/score`) with an
-      array of data and receive the model predicitons back.
+3. **Entrenamiento del Modelo**:
+   - Script: `train.py` realiza las siguientes tareas:
+     - Divide los datos en conjuntos de entrenamiento y prueba.
+     - Entrena un modelo de regresión logística.
+     - Evalúa el modelo con métricas como `classification_report` y `roc_auc_score`.
+     - Guarda el modelo entrenado y el preprocesador en la carpeta `models/`.
 
-3.  Be prepared to discuss how you would deploy your model training and scoring
-    to your favorite Cloud service ( GCP, Azure, etc).
+4. **Generación de Predicciones**:
+   - Script: `score.py` realiza las siguientes tareas:
+     - Carga los datos de scoring desde `data/score.csv`.
+     - Utiliza el preprocesador ajustado para transformar los datos.
+     - Genera predicciones utilizando el modelo entrenado.
+     - Guarda las predicciones en un archivo CSV en `models/predictions.csv`.
 
-    - You can assume the training data is in your favorite Cloud File Storage service
-      (ie: Azure Blob Storage, Google Cloud Storage, Amazon S3, etc).
-    - You may write/leverage a CI/CD pipeline to demonstrate, or be prepared to
-      talk about this step.
-    - You may include a simple architecture diagram and talk through it or be prepared
-      to whiteboard your ideas.
-    - Be prepared to discuss integrations with relevant MLOps services on your chosen
-      platform (ie: AzureML, VertexAI, Sagemaker, etc).
+### Archivos Clave
+- **`config.yaml`**: Archivo de configuración que define rutas, columnas esperadas y parámetros del modelo.
+- **`data_loader.py`**: Carga y valida los datasets para entrenamiento y scoring.
+- **`preprocessor.py`**: Define el pipeline de preprocesamiento.
+- **`train.py`**: Coordina el flujo completo de entrenamiento del modelo.
+- **`score.py`**: Genera predicciones usando el modelo entrenado.
 
-## Extra points 
-Even though not required it would be awsome if you can write some of the following:
-    - Unit test for some the code you write
-    - A github action to build the docker container
-    - Integration test for a running docker container
-    - Demo of the service running and passing test during the interview
+### Resultados
+- **Modelo Entrenado**: Guardado en `models/logistic_regression.pkl`.
+- **Preprocesador Ajustado**: Guardado en `models/preprocessor.pkl`.
+- **Métricas de Evaluación**: Guardadas en `models/metrics.yaml`.
+- **Predicciones**: Guardadas en `models/predictions.csv`.
 
+### Ejecución de los Scripts
+- **Entrenamiento del Modelo**:
+  ```bash
+  python scripts/train.py
+   ```
 
-It is recommended that you push the resulting work to your own Git project and
-be prepared to provide the link and discuss your work at the interview. The purpose of this
-section is to provide a platform you the candidate to demonstrate familiarity with the technologies
-and processes involved in migrating DS modeling from notebooks to production. We do not expect
-perfect/professional code in the limited timeframe, but be prepared to use your submission to
-demonstrate your capabilities in this area.
+## Etapa 2: Despliegue del Modelo
 
-Feel free to use AI tools, like ChatGPT, Github Copilot to produce, document, undertand code but make
-sure you are able to explain carefully each line of code.
+### Objetivo
+Desplegar una API que permita realizar scoring utilizando el modelo entrenado y hacerlo accesible mediante un contenedor Docker.
 
-## Interview
+### Flujo de Trabajo
+1. **Construcción de la API**:
+   - Archivo: `api.py`.
+   - La API está desarrollada con **FastAPI** y tiene dos endpoints:
+     - `GET /`: Endpoint de prueba para verificar si la API está activa.
+     - `POST /score`: Endpoint que recibe datos en formato JSON, los preprocesa y devuelve predicciones del modelo.
 
-During the follow-up interview we will ask you to present your
-<b>resulting repo</b> that accomplishes the above. We expect to see
-the above training and scoring scripts together with any helper
-modules/classes you may have defined/written organized in a logical
-manner consistent with your `Docker` implementations.
+2. **Configuración del Dockerfile**:
+   - Utiliza una imagen ligera de Python (`python:3.10-slim`).
+   - Define las siguientes instrucciones:
+     - Crear un directorio de trabajo (`/app`).
+     - Copiar los archivos necesarios (`api` y `models`).
+     - Instalar las dependencias requeridas: `fastapi`, `uvicorn`, `pandas`, `scikit-learn`, y `joblib`.
+   - Expone el puerto `8888` y define el comando de inicio para levantar la API con `uvicorn`.
 
-Some key questions we will work through:
+3. **Construcción del Contenedor Docker**:
+   - Construcción de la imagen Docker:
+     ```bash
+     docker build -t ml-scoring-api .
+     ```
+   - Ejecución del contenedor:
+     ```bash
+     docker run -p 8888:8888 ml-scoring-api
+     ```
 
-- How did/would you structure the training codebase? Why?
-- How did/would you handle model metric tracking?
-- How did/would you handle model versioning and updating?
-- How did you handle environment replication/stability?
-- How did/would you handle deployment to multiple environments (`dev`/`test`/`prod`)?
-- How would you deploy this model to your favorite Cloud service? What services/architecture pattern would you use?
-- What would change as the volume of training or scoring data increased dramatically?
-- How would you begin writing a CI/CD pipeline in your favorite platform (Azure Dev Ops, Gitlab CI, GitHub Actions, etc.)
-  to support your architecture and deployment?
+4. **Prueba de la API**:
+   - Acceder al endpoint raíz:
+     ```bash
+     curl http://localhost:8888/
+     ```
+     Respuesta esperada:
+     ```json
+     {
+       "message": "API para Scoring activa"
+     }
+     ```
+   - Enviar datos para scoring:
+     ```bash
+     curl -X POST "http://localhost:8888/score" \
+          -H "Content-Type: application/json" \
+          -d '{"data": [[1.5, 2.3, "Tuesday", 4.2, 5.1, "Oregon", "toyota"]]}'
+     ```
+     Respuesta esperada:
+     ```json
+     {
+       "predictions": [1]
+     }
+     ```
 
-**NOTE**: We do not expect all of the above questions to be worked-out/demonstrated
-in your codebase, but you should be prepared to whiteboard/discuss these issues.
+### Archivos Clave
+- **`api.py`**: Define los endpoints y la lógica de scoring.
+- **`Dockerfile`**: Configura la imagen de Docker para ejecutar la API.
+- **`models/`**: Contiene el modelo y el preprocesador entrenados.
+
+### Ejecución Completa
+1. Construir la imagen Docker:
+   ```bash
+   docker build -t ml-scoring-api .
+   ```
