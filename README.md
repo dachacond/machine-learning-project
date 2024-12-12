@@ -95,73 +95,66 @@ Preparar los datos, entrenar un modelo de regresión logística, y generar predi
    ```
 
 ## Etapa 2: Despliegue del Modelo
+
 ### Objetivo
-Crear una API para hacer scoring con el modelo entrenado y desplegarla en un contenedor Docker.
+Desplegar una API que permita realizar scoring utilizando el modelo entrenado y hacerlo accesible mediante un contenedor Docker.
 
-### Pasos Clave
-1. **Implementación de la API**:
-   - Framework: FastAPI.
-   - Archivo: `api/api.py`.
-   - Endpoint principal: `/score`.
+### Flujo de Trabajo
+1. **Construcción de la API**:
+   - Archivo: `api.py`.
+   - La API está desarrollada con **FastAPI** y tiene dos endpoints:
+     - `GET /`: Endpoint de prueba para verificar si la API está activa.
+     - `POST /score`: Endpoint que recibe datos en formato JSON, los preprocesa y devuelve predicciones del modelo.
 
-2. **Configuración de Docker**:
-   - Imagen basada en `python:3.10-slim`.
-   - Archivo: `Dockerfile`.
-   - Construcción:
+2. **Configuración del Dockerfile**:
+   - Utiliza una imagen ligera de Python (`python:3.10-slim`).
+   - Define las siguientes instrucciones:
+     - Crear un directorio de trabajo (`/app`).
+     - Copiar los archivos necesarios (`api` y `models`).
+     - Instalar las dependencias requeridas: `fastapi`, `uvicorn`, `pandas`, `scikit-learn`, y `joblib`.
+   - Expone el puerto `8888` y define el comando de inicio para levantar la API con `uvicorn`.
+
+3. **Construcción del Contenedor Docker**:
+   - Construcción de la imagen Docker:
      ```bash
      docker build -t ml-scoring-api .
      ```
-
-3. **Ejecución del Contenedor**:
-   - Comando:
+   - Ejecución del contenedor:
      ```bash
      docker run -p 8888:8888 ml-scoring-api
      ```
-   - Acceso: [http://localhost:8888](http://localhost:8888).
 
-4. **Uso de la API**:
-   - Solicitudes POST al endpoint `/score` con datos en formato JSON.
-   - Ejemplo de entrada:
+4. **Prueba de la API**:
+   - Acceder al endpoint raíz:
+     ```bash
+     curl http://localhost:8888/
+     ```
+     Respuesta esperada:
      ```json
      {
-       "data": [[1.5, 2.3, "Tuesday", 4.2, 5.1, "Oregon", "toyota"]]
+       "message": "API para Scoring activa"
      }
      ```
-   - Respuesta esperada:
+   - Enviar datos para scoring:
+     ```bash
+     curl -X POST "http://localhost:8888/score" \
+          -H "Content-Type: application/json" \
+          -d '{"data": [[1.5, 2.3, "Tuesday", 4.2, 5.1, "Oregon", "toyota"]]}'
+     ```
+     Respuesta esperada:
      ```json
      {
        "predictions": [1]
      }
      ```
 
----
+### Archivos Clave
+- **`api.py`**: Define los endpoints y la lógica de scoring.
+- **`Dockerfile`**: Configura la imagen de Docker para ejecutar la API.
+- **`models/`**: Contiene el modelo y el preprocesador entrenados.
 
-## Pruebas y Validaciones
-### Objetivo
-Garantizar la calidad del código y la correcta funcionalidad de los componentes.
-
-### Scripts de Pruebas
-- `tests/test_loader.py`: Verifica la carga de datos.
-- `tests/test_preprocessor.py`: Valida el preprocesamiento de datos.
-
----
-
-## Configuración del Proyecto
-### Archivo `config.yaml`
-Define:
-- Rutas para datos y modelos.
-- Parámetros de preprocesamiento y entrenamiento.
-
----
-
-## Dependencias
-- Python 3.10
-- Bibliotecas:
-  - scikit-learn
-  - pandas
-  - FastAPI
-  - uvicorn
-
-Instalación:
-```bash
-pip install -r requirements.txt
+### Ejecución Completa
+1. Construir la imagen Docker:
+   ```bash
+   docker build -t ml-scoring-api .
+   ```
