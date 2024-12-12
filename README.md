@@ -92,7 +92,7 @@ Preparar los datos, entrenar un modelo de regresión logística, y generar predi
 - **Entrenamiento del Modelo**:
   ```bash
   python scripts/train.py
-```
+   ```
 
 ## Etapa 2: Despliegue del Modelo
 ### Objetivo
