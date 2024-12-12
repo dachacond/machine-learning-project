@@ -9,4 +9,35 @@ Este proyecto entrena un modelo de regresión logística, lo implementa en una A
 
 ## Estructura del Proyecto
 
-mle-intv-main/ │ ├── api/ │ ├── api.py # Código de la API implementada con FastAPI │ ├── data/ │ ├── train.csv # Datos de entrenamiento │ ├── score.csv # Datos de scoring │ ├── models/ │ ├── logistic_regression.pkl # Modelo entrenado (regresión logística) │ ├── preprocessor.pkl # Preprocesador ajustado │ ├── predictions.csv # Archivo generado con las predicciones │ ├── notebooks/ │ ├── notebook_script.py # Script de Python con los pasos del notebook inicial │ ├── scripts/ │ ├── train.py # Script para entrenar el modelo │ ├── score.py # Script para probar el modelo con datos nuevos │ ├── src/ │ ├── data_loader.py # Código para cargar datos │ ├── preprocessor.py # Código para preprocesar datos │ ├── config.yaml # Archivo de configuración con rutas y parámetros │ ├── tests/ │ ├── test_loader.py # Script para probar data_loader.py │ ├── test_preprocessor.py # Script para probar preprocessor.py │ ├── Dockerfile # Archivo para construir la imagen Docker └── README.md # Archivo principal de documentación
+mle-intv-main/
+│
+├── api/
+│   ├── api.py                 # Código de la API implementada con FastAPI
+│
+├── data/
+│   ├── train.csv              # Datos de entrenamiento
+│   ├── score.csv              # Datos de scoring
+│
+├── models/
+│   ├── logistic_regression.pkl # Modelo entrenado (regresión logística)
+│   ├── preprocessor.pkl       # Preprocesador ajustado
+│   ├── predictions.csv        # Archivo generado con las predicciones
+│
+├── notebooks/
+│   ├── notebook_script.py     # Script de Python con los pasos del notebook inicial
+│
+├── scripts/
+│   ├── train.py               # Script para entrenar el modelo
+│   ├── score.py               # Script para probar el modelo con datos nuevos
+│
+├── src/
+│   ├── data_loader.py         # Código para cargar datos
+│   ├── preprocessor.py        # Código para preprocesar datos
+│   ├── config.yaml            # Archivo de configuración con rutas y parámetros
+│
+├── tests/
+│   ├── test_loader.py         # Script para probar data_loader.py
+│   ├── test_preprocessor.py   # Script para probar preprocessor.py
+│
+├── Dockerfile                 # Archivo para construir la imagen Docker
+└── README.md                  # Archivo principal de documentación
