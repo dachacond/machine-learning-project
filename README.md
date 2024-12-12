@@ -44,14 +44,14 @@ mle-intv-main/
 
 ---
 
-## Etapa 1: Entrenamiento del Modelo
+## Etapa 1: Entrenamiento y Scoring del Modelo
 
 ### Objetivo
-Preparar los datos, entrenar un modelo de regresión logística y guardar tanto el modelo como el preprocesador para su uso en producción.
+Preparar los datos, entrenar un modelo de regresión logística, y generar predicciones utilizando el modelo entrenado y los datos preprocesados.
 
 ### Flujo de Trabajo
 1. **Carga de Datos**:
-   - Archivo: `data/train.csv`
+   - Archivo: `data/train.csv` para entrenamiento y `data/score.csv` para scoring.
    - Script: `data_loader.py` carga y valida los datos según las columnas esperadas configuradas en `config.yaml`.
 
 2. **Preprocesamiento de Datos**:
@@ -61,29 +61,38 @@ Preparar los datos, entrenar un modelo de regresión logística y guardar tanto 
      - Codificación de variables categóricas.
    - Script: `preprocessor.py` ajusta y aplica transformadores configurados.
 
-3. **Entrenamiento y Evaluación del Modelo**:
+3. **Entrenamiento del Modelo**:
    - Script: `train.py` realiza las siguientes tareas:
      - Divide los datos en conjuntos de entrenamiento y prueba.
      - Entrena un modelo de regresión logística.
      - Evalúa el modelo con métricas como `classification_report` y `roc_auc_score`.
      - Guarda el modelo entrenado y el preprocesador en la carpeta `models/`.
 
+4. **Generación de Predicciones**:
+   - Script: `score.py` realiza las siguientes tareas:
+     - Carga los datos de scoring desde `data/score.csv`.
+     - Utiliza el preprocesador ajustado para transformar los datos.
+     - Genera predicciones utilizando el modelo entrenado.
+     - Guarda las predicciones en un archivo CSV en `models/predictions.csv`.
+
 ### Archivos Clave
 - **`config.yaml`**: Archivo de configuración que define rutas, columnas esperadas y parámetros del modelo.
 - **`data_loader.py`**: Carga y valida los datasets para entrenamiento y scoring.
 - **`preprocessor.py`**: Define el pipeline de preprocesamiento.
 - **`train.py`**: Coordina el flujo completo de entrenamiento del modelo.
+- **`score.py`**: Genera predicciones usando el modelo entrenado.
 
 ### Resultados
 - **Modelo Entrenado**: Guardado en `models/logistic_regression.pkl`.
 - **Preprocesador Ajustado**: Guardado en `models/preprocessor.pkl`.
 - **Métricas de Evaluación**: Guardadas en `models/metrics.yaml`.
+- **Predicciones**: Guardadas en `models/predictions.csv`.
 
-### Ejecución del Script de Entrenamiento
-Para entrenar el modelo, utiliza el siguiente comando:
-```bash
-python scripts/train.py
-
+### Ejecución de los Scripts
+- **Entrenamiento del Modelo**:
+  ```bash
+  python scripts/train.py
+```
 
 ## Etapa 2: Despliegue del Modelo
 ### Objetivo
