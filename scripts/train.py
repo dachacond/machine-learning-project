@@ -5,10 +5,13 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
-
-# Aseguramos las rutas absolutas para importar módulos desde src
 import sys
-sys.path.append("C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\src")
+
+# Agregar la carpeta 'src' al sistema de rutas dinámicamente
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_DIR = os.path.join(BASE_DIR, "src")
+sys.path.append(SRC_DIR)
+
 from data_loader import load_training_data
 from preprocessor import fit_transformers, preprocess_training_data
 
@@ -85,5 +88,6 @@ def train_model(config_path: str) -> None:
     logger.info("Entrenamiento y guardado completados con éxito.")
 
 if __name__ == "__main__":
-    # Cambia la ruta del archivo de configuración según la nueva ubicación
-    train_model("C:\\Users\\Daniel\\Documents\\data-science\\mle-intv-main\\src\\config.yaml")
+    # Ruta dinámica al archivo de configuración
+    config_path = os.path.join(SRC_DIR, "config.yaml")
+    train_model(config_path)
