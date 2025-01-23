@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-scoring-api-service
+spec:
+  selector:
+    app: ml-scoring-api
+  ports:
+    - protocol: TCP
+      port: 80  # Puerto expuesto para usuarios externos
+      targetPort: 8888  # Puerto interno del contenedor
+  type: NodePort  # Exposición en el puerto de un nodo
