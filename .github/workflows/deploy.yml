@@ -20,6 +20,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    - name: Start EC2 Instance
+      run: |
+        aws ec2 start-instances --instance-ids "i-0d3ba109fefc8da8e"
+        echo "Waiting for instance to start..."
+        aws ec2 wait instance-running --instance-ids "i-0d3ba109fefc8da8e"
+        echo "Instance is running."
+
     - name: Build and Push Docker Image to ECR
       run: |
         aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 796973493835.dkr.ecr.us-east-1.amazonaws.com
@@ -38,3 +45,10 @@ jobs:
             docker stop $(docker ps -q) || true
             docker run -d -p 80:8888 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
           '
+
+    - name: Stop EC2 Instance
+      run: |
+        aws ec2 stop-instances --instance-ids "i-0d3ba109fefc8da8e"
+        echo "Waiting for instance to stop..."
+        aws ec2 wait instance-stopped --instance-ids "i-0d3ba109fefc8da8e"
+        echo "Instance is stopped."
