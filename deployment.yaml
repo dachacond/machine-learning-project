@@ -15,10 +15,13 @@ spec:
         app: ml-scoring-api
     spec:
       containers:
-      - name: ml-scoring-api
-        image: dachacond967/ml-scoring-api:latest  # Imagen Docker creada anteriormente
-        ports:
-        - containerPort: 8888  # Puerto que expone la aplicación dentro del contenedor
-        env:
-        - name: CONFIG_PATH  # Variable de entorno para la configuración
-          value: "/app/src/config.yaml"
+        - name: ml-scoring-api
+          image: 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api  # Imagen Docker desde Amazon ECR
+          ports:
+            - containerPort: 8888  # Puerto que expone la aplicación dentro del contenedor
+          env:
+            - name: CONFIG_PATH  # Variable de entorno para la configuración
+              value: "/app/src/config.yaml"
+      imagePullSecrets:
+        - name: ecr-secret
+
