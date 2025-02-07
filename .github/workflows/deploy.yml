@@ -36,7 +36,14 @@ jobs:
         username: ubuntu
         key: ${{ secrets.AWS_PRIVATE_KEY }}
         script: |
-          sudo docker pull 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
-          sudo docker stop $(docker ps -q) || true
-          sudo docker run -d -p 80:8888 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
+          # Login to Amazon ECR
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | sudo docker login --username AWS --password-stdin 796973493835.dkr.ecr.us-east-1.amazonaws.com
 
+          # Pull the latest Docker image from ECR
+          sudo docker pull 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
+
+          # Stop any running containers
+          sudo docker stop $(sudo docker ps -q) || true
+
+          # Run the new container
+          sudo docker run -d -p 80:8888 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
