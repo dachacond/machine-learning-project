@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Deploy to AWS EC2 via SSM
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout Repository
       uses: actions/checkout@v4
 
     - name: Configure AWS Credentials
@@ -20,42 +20,21 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Log in to Amazon ECR
+    - name: Build and Push Docker Image to ECR
       run: |
         aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 796973493835.dkr.ecr.us-east-1.amazonaws.com
-
-    - name: Build and push Docker image to ECR
-      run: |
         docker build -t 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest .
         docker push 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
 
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.AWS_EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.AWS_PRIVATE_KEY }}
-        script: |
-          # Install AWS CLI if not already installed
-          if ! command -v aws &> /dev/null; then
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-          fi
-
-          # Set AWS credentials
-          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
-          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          export AWS_REGION="${{ secrets.AWS_REGION }}"
-
-          # Login to Amazon ECR
-          aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin 796973493835.dkr.ecr.us-east-1.amazonaws.com
-
-          # Pull the latest Docker image from ECR
-          sudo docker pull 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
-
-          # Stop any running containers
-          sudo docker stop $(sudo docker ps -q) || true
-
-          # Run the new container
-          sudo docker run -d -p 80:8888 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
+    - name: Deploy Application via SSM
+      run: |
+        aws ssm send-command \
+          --instance-ids "i-0d3ba109fefc8da8e" \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploy ml-scoring-api" \
+          --parameters commands='
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 796973493835.dkr.ecr.us-east-1.amazonaws.com
+            docker pull 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
+            docker stop $(docker ps -q) || true
+            docker run -d -p 80:8888 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
+          '
