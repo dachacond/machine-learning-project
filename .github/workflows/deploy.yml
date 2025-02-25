@@ -6,6 +6,10 @@ on:
       - develop
       - main
 
+permissions:
+  id-token: write  # 🚀 NECESARIO para autenticación con OIDC
+  contents: read
+
 jobs:
 
   lint:
