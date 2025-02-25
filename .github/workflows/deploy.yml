@@ -62,8 +62,6 @@ jobs:
       run: |
         SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id /github-actions/secrets --query SecretString --output text)
         echo "::add-mask::$SECRET_JSON"
-        echo "AWS_ACCESS_KEY_ID=$(echo $SECRET_JSON | jq -r .AWS_ACCESS_KEY_ID)" >> $GITHUB_ENV
-        echo "AWS_SECRET_ACCESS_KEY=$(echo $SECRET_JSON | jq -r .AWS_SECRET_ACCESS_KEY)" >> $GITHUB_ENV
         echo "AWS_REGION=$(echo $SECRET_JSON | jq -r .AWS_REGION)" >> $GITHUB_ENV
         echo "ECR_URL=$(echo $SECRET_JSON | jq -r .ECR_URL)" >> $GITHUB_ENV
         echo "EC2_INSTANCE_ID=$(echo $SECRET_JSON | jq -r .EC2_INSTANCE_ID)" >> $GITHUB_ENV
@@ -87,7 +85,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/GitHubActionsRole
+        role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
         aws-region: us-east-1
 
     - name: Retrieve Secrets from AWS Secrets Manager
@@ -95,8 +93,6 @@ jobs:
       run: |
         SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id /github-actions/secrets --query SecretString --output text)
         echo "::add-mask::$SECRET_JSON"
-        echo "AWS_ACCESS_KEY_ID=$(echo $SECRET_JSON | jq -r .AWS_ACCESS_KEY_ID)" >> $GITHUB_ENV
-        echo "AWS_SECRET_ACCESS_KEY=$(echo $SECRET_JSON | jq -r .AWS_SECRET_ACCESS_KEY)" >> $GITHUB_ENV
         echo "AWS_REGION=$(echo $SECRET_JSON | jq -r .AWS_REGION)" >> $GITHUB_ENV
         echo "ECR_URL=$(echo $SECRET_JSON | jq -r .ECR_URL)" >> $GITHUB_ENV
         echo "EC2_INSTANCE_ID=$(echo $SECRET_JSON | jq -r .EC2_INSTANCE_ID)" >> $GITHUB_ENV
@@ -127,6 +123,7 @@ jobs:
         echo "Waiting for instance to stop..."
         aws ec2 wait instance-stopped --instance-ids "${{ env.EC2_INSTANCE_ID }}"
         echo "Instance is stopped."
+
 
 
 
