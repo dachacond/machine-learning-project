@@ -57,6 +57,9 @@ jobs:
         role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
         aws-region: us-east-1
 
+    - name: Debug AWS STS Identity  # 🔍 New Debugging Step
+      run: aws sts get-caller-identity
+
     - name: Retrieve Secrets from AWS Secrets Manager
       id: aws-secrets
       run: |
@@ -87,6 +90,9 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
         aws-region: us-east-1
+
+    - name: Debug AWS STS Identity  # 🔍 New Debugging Step
+      run: aws sts get-caller-identity
 
     - name: Retrieve Secrets from AWS Secrets Manager
       id: aws-secrets
@@ -123,6 +129,7 @@ jobs:
         echo "Waiting for instance to stop..."
         aws ec2 wait instance-stopped --instance-ids "${{ env.EC2_INSTANCE_ID }}"
         echo "Instance is stopped."
+
 
 
 
