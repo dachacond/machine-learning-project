@@ -44,7 +44,7 @@ jobs:
   build:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    needs: test  # 🚨 Solo se ejecuta si los tests pasan
+    needs: test
     if: github.ref_name == 'main'
 
     steps:
@@ -54,59 +54,80 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
+        aws-region: us-east-1
+
+    - name: Retrieve Secrets from AWS Secrets Manager
+      id: aws-secrets
+      run: |
+        SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id /github-actions/secrets --query SecretString --output text)
+        echo "::add-mask::$SECRET_JSON"
+        echo "AWS_ACCESS_KEY_ID=$(echo $SECRET_JSON | jq -r .AWS_ACCESS_KEY_ID)" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$(echo $SECRET_JSON | jq -r .AWS_SECRET_ACCESS_KEY)" >> $GITHUB_ENV
+        echo "AWS_REGION=$(echo $SECRET_JSON | jq -r .AWS_REGION)" >> $GITHUB_ENV
+        echo "ECR_URL=$(echo $SECRET_JSON | jq -r .ECR_URL)" >> $GITHUB_ENV
+        echo "EC2_INSTANCE_ID=$(echo $SECRET_JSON | jq -r .EC2_INSTANCE_ID)" >> $GITHUB_ENV
 
     - name: Log in to Amazon ECR
       run: |
-        aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 796973493835.dkr.ecr.us-east-1.amazonaws.com
+        aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }}
 
     - name: Build and Push Docker Image to ECR
       run: |
-        docker build -t 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest .
-        docker push 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
+        docker build -t ${{ env.ECR_URL }}/ml-scoring-api:latest .
+        docker push ${{ env.ECR_URL }}/ml-scoring-api:latest
 
   deploy:
     name: Deploy to AWS EC2 (Main Only)
     runs-on: ubuntu-latest
-    needs: build  # 🚨 Se ejecuta solo si la imagen se subió correctamente
+    needs: build
     if: github.ref_name == 'main'
 
     steps:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/GitHubActionsRole
+        aws-region: us-east-1
+
+    - name: Retrieve Secrets from AWS Secrets Manager
+      id: aws-secrets
+      run: |
+        SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id /github-actions/secrets --query SecretString --output text)
+        echo "::add-mask::$SECRET_JSON"
+        echo "AWS_ACCESS_KEY_ID=$(echo $SECRET_JSON | jq -r .AWS_ACCESS_KEY_ID)" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$(echo $SECRET_JSON | jq -r .AWS_SECRET_ACCESS_KEY)" >> $GITHUB_ENV
+        echo "AWS_REGION=$(echo $SECRET_JSON | jq -r .AWS_REGION)" >> $GITHUB_ENV
+        echo "ECR_URL=$(echo $SECRET_JSON | jq -r .ECR_URL)" >> $GITHUB_ENV
+        echo "EC2_INSTANCE_ID=$(echo $SECRET_JSON | jq -r .EC2_INSTANCE_ID)" >> $GITHUB_ENV
 
     - name: Start EC2 Instance
       run: |
-        aws ec2 start-instances --instance-ids "i-0d3ba109fefc8da8e"
+        aws ec2 start-instances --instance-ids "${{ env.EC2_INSTANCE_ID }}"
         echo "Waiting for instance to start..."
-        aws ec2 wait instance-running --instance-ids "i-0d3ba109fefc8da8e"
+        aws ec2 wait instance-running --instance-ids "${{ env.EC2_INSTANCE_ID }}"
         echo "Instance is running."
 
     - name: Deploy Application via SSM
       run: |
         aws ssm send-command \
-          --instance-ids "i-0d3ba109fefc8da8e" \
+          --instance-ids "${{ env.EC2_INSTANCE_ID }}" \
           --document-name "AWS-RunShellScript" \
           --comment "Deploy ml-scoring-api" \
           --parameters commands='
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 796973493835.dkr.ecr.us-east-1.amazonaws.com
-            docker pull 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }}
+            docker pull ${{ env.ECR_URL }}/ml-scoring-api:latest
             docker stop $(docker ps -q) || true
-            docker run -d -p 80:8888 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api:latest
+            docker run -d -p 80:8888 ${{ env.ECR_URL }}/ml-scoring-api:latest
           '
 
     - name: Stop EC2 Instance
       run: |
-        aws ec2 stop-instances --instance-ids "i-0d3ba109fefc8da8e"
+        aws ec2 stop-instances --instance-ids "${{ env.EC2_INSTANCE_ID }}"
         echo "Waiting for instance to stop..."
-        aws ec2 wait instance-stopped --instance-ids "i-0d3ba109fefc8da8e"
+        aws ec2 wait instance-stopped --instance-ids "${{ env.EC2_INSTANCE_ID }}"
         echo "Instance is stopped."
+
 
 
 
