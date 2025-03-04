@@ -1,5 +1,5 @@
 # README: ML Regression Logistic API with Docker
-# prueba worklflow github action maiñ
+# prueba worklflow github action main
 ## Proyecto: Entrenamiento y Despliegue de un Modelo de Machine Learningg
 
 ### Descripción del Proyecto
