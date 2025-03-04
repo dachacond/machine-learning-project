@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ml-scoring-api
 spec:
-  replicas: 2  # Número de pods a ejecutar
+  replicas: 1  # Número de pods a ejecutar
   selector:
     matchLabels:
       app: ml-scoring-api
@@ -22,6 +22,13 @@ spec:
           env:
             - name: CONFIG_PATH  # Variable de entorno para la configuración
               value: "/app/src/config.yaml"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
       imagePullSecrets:
         - name: ecr-secret
 
