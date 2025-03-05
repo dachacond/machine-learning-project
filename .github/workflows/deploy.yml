@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Test & Deploy to AWS EC2 via SSM
+name: CI/CD Pipeline - Test & Deploy to AWS EKS via kubectl
 
 on:
   push:
@@ -61,7 +61,7 @@ jobs:
         role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
         aws-region: us-east-1
 
-    - name: Debug AWS STS Identity  # 🔍 New Debugging Step
+    - name: Debug AWS STS Identity
       run: aws sts get-caller-identity
 
     - name: Retrieve Secrets from AWS Secrets Manager
@@ -71,7 +71,7 @@ jobs:
         echo "::add-mask::$SECRET_JSON"
         echo "AWS_REGION=$(echo $SECRET_JSON | jq -r .AWS_REGION)" >> $GITHUB_ENV
         echo "ECR_URL=$(echo $SECRET_JSON | jq -r .ECR_URL)" >> $GITHUB_ENV
-        echo "EC2_INSTANCE_ID=$(echo $SECRET_JSON | jq -r .EC2_INSTANCE_ID)" >> $GITHUB_ENV
+        echo "EKS_CLUSTER_NAME=$(echo $SECRET_JSON | jq -r .EKS_CLUSTER_NAME)" >> $GITHUB_ENV
 
     - name: Log in to Amazon ECR
       run: |
@@ -83,7 +83,7 @@ jobs:
         docker push ${{ env.ECR_URL }}/ml-scoring-api:latest
 
   deploy:
-    name: Deploy to AWS EC2 (Main Only)
+    name: Deploy to AWS EKS (Main Only)
     runs-on: ubuntu-latest
     needs: build
     if: github.ref_name == 'main'
@@ -95,7 +95,7 @@ jobs:
         role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
         aws-region: us-east-1
 
-    - name: Debug AWS STS Identity  # 🔍 New Debugging Step
+    - name: Debug AWS STS Identity
       run: aws sts get-caller-identity
 
     - name: Retrieve Secrets from AWS Secrets Manager
@@ -105,34 +105,16 @@ jobs:
         echo "::add-mask::$SECRET_JSON"
         echo "AWS_REGION=$(echo $SECRET_JSON | jq -r .AWS_REGION)" >> $GITHUB_ENV
         echo "ECR_URL=$(echo $SECRET_JSON | jq -r .ECR_URL)" >> $GITHUB_ENV
-        echo "EC2_INSTANCE_ID=$(echo $SECRET_JSON | jq -r .EC2_INSTANCE_ID)" >> $GITHUB_ENV
+        echo "EKS_CLUSTER_NAME=$(echo $SECRET_JSON | jq -r .EKS_CLUSTER_NAME)" >> $GITHUB_ENV
 
-    - name: Start EC2 Instance
+    - name: Update kubeconfig
       run: |
-        aws ec2 start-instances --instance-ids "${{ env.EC2_INSTANCE_ID }}"
-        echo "Waiting for instance to start..."
-        aws ec2 wait instance-running --instance-ids "${{ env.EC2_INSTANCE_ID }}"
-        echo "Instance is running."
+        aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
-    - name: Deploy Application via SSM
+    - name: Deploy to EKS
       run: |
-        aws ssm send-command \
-          --instance-ids "${{ env.EC2_INSTANCE_ID }}" \
-          --document-name "AWS-RunShellScript" \
-          --comment "Deploy ml-scoring-api" \
-          --parameters commands='
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }}
-            docker pull ${{ env.ECR_URL }}/ml-scoring-api:latest
-            docker stop $(docker ps -q) || true
-            docker run -d -p 80:8888 ${{ env.ECR_URL }}/ml-scoring-api:latest
-          '
-
-    - name: Stop EC2 Instance
-      run: |
-        aws ec2 stop-instances --instance-ids "${{ env.EC2_INSTANCE_ID }}"
-        echo "Waiting for instance to stop..."
-        aws ec2 wait instance-stopped --instance-ids "${{ env.EC2_INSTANCE_ID }}"
-        echo "Instance is stopped."
+        kubectl apply -f deployment.yaml
+        kubectl apply -f service.yaml
 
 
 
