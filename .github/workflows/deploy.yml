@@ -55,9 +55,6 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Create AWS config directory
-      run: mkdir -p ~/.aws
-
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -90,16 +87,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.ref_name == 'main'
-    env:
-      TF_SKIP_PROVIDER_VERIFY: "true"
-      AWS_SDK_LOAD_CONFIG: "1"
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-
-    - name: Create AWS config directory
-      run: mkdir -p ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -110,7 +101,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
-        terraform_version: 1.5.7
+        terraform_version: 1.11.2
 
     - name: Terraform Init
       working-directory: ./terraform
@@ -129,9 +120,6 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-
-    - name: Create AWS config directory
-      run: mkdir -p ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -165,16 +153,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     if: github.ref_name == 'main'
-    env:
-      TF_SKIP_PROVIDER_VERIFY: "true"
-      AWS_SDK_LOAD_CONFIG: "1"
     
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-
-    - name: Create AWS config directory
-      run: mkdir -p ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -185,7 +167,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
-        terraform_version: 1.5.7
+        terraform_version: 1.11.2
 
     - name: Terraform Init
       working-directory: ./terraform
