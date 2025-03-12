@@ -55,6 +55,9 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - name: Create AWS config directory
+      run: mkdir -p ~/.aws
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -95,6 +98,9 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - name: Create AWS config directory
+      run: mkdir -p ~/.aws
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -123,6 +129,9 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
+
+    - name: Create AWS config directory
+      run: mkdir -p ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -163,6 +172,9 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
+
+    - name: Create AWS config directory
+      run: mkdir -p ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
