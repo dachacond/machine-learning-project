@@ -108,12 +108,13 @@ jobs:
       run: terraform init
 
     - name: Terraform Apply
+      id: terraform-apply
       working-directory: ./terraform
       run: terraform apply -auto-approve
       continue-on-error: true  # permite continuar aunque falle
 
     - name: Terraform Destroy (cleanup on failure)
-      if: ${{ steps.apply.outcome == 'failure' }}
+      if: ${{ steps.terraform-apply.outcome == 'failure' }}
       working-directory: ./terraform
       run: terraform destroy -auto-approve
 
