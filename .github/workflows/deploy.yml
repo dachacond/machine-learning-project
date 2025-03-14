@@ -111,10 +111,33 @@ jobs:
       id: terraform-apply
       working-directory: ./terraform
       run: terraform apply -auto-approve
-      continue-on-error: true  # permite continuar aunque falle
+      
+  terraform-cleanup:
+    name: Terraform Cleanup on Failure
+    runs-on: ubuntu-latest
+    needs: terraform-apply
+    if: failure() && github.ref_name == 'main'
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    - name: Terraform Destroy (cleanup on failure)
-      if: ${{ steps.terraform-apply.outcome == 'failure' }}
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
+        aws-region: us-east-1
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.11.2
+
+    - name: Terraform Init
+      working-directory: ./terraform
+      run: terraform init
+
+    - name: Terraform Destroy for Cleanup
       working-directory: ./terraform
       run: terraform destroy -auto-approve
 
