@@ -5,12 +5,14 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copiar solo los archivos necesarios para la API y las pruebas
+# Copiar el código, modelos, tests y el archivo de dependencias
 COPY ./api /app/api
 COPY ./models /app/models
 COPY ./tests /app/tests
+COPY ./requirements.txt /app/requirements.txt
 
-# Instalar dependencias necesarias
-RUN pip install pytest fastapi uvicorn pandas scikit-learn joblib httpx requests
+# Instalar dependencias desde requirements.txt (asegura versiones consistentes con el modelo guardado)
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Añadir la carpeta del proyecto al PYTHONPATH
 ENV PYTHONPATH=/app
@@ -22,5 +24,5 @@ EXPOSE 8888
 RUN pytest tests/test_main.py
 
 # Comando final: Levantar la API y luego ejecutar los Integration Tests
-CMD uvicorn api.api:app --host 0.0.0.0 --port 8888 & sleep 3 && pytest tests/integration_test.py
+CMD ["pytest", "tests/integration_test.py"]
 
