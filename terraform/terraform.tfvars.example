@@ -1,3 +1,0 @@
-# Copiar a terraform/terraform.tfvars y rellenar los valores reales
-github_actions_role_arn = "arn:aws:iam::123456789012:role/GitHubActionsRole"
-region = "us-east-1"
