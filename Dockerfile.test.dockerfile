@@ -13,7 +13,7 @@ COPY ./requirements.txt /app/requirements.txt
 
 # Instalar dependencias desde requirements.txt (asegura versiones consistentes con el modelo guardado)
 # y herramientas para testing (pytest, httpx, requests)
-RUN pip install --no-cache-dir -r /app/requirements.txt pytest requests
+RUN pip install --no-cache-dir -r /app/requirements.txt pytest requests httpx==0.23.3
 
 # Añadir la carpeta del proyecto al PYTHONPATH
 ENV PYTHONPATH=/app
