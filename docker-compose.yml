@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  ml-scoring:
+    build: .
+    image: ml-scoring-ui:latest
+    ports:
+      - "8888:8888"
+    restart: unless-stopped

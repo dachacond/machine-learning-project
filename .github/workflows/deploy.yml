@@ -58,7 +58,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: us-east-1
 
     - name: Debug AWS STS Identity
@@ -72,6 +72,12 @@ jobs:
         echo "AWS_REGION=$(echo $SECRET_JSON | jq -r .AWS_REGION)" >> $GITHUB_ENV
         echo "ECR_URL=$(echo $SECRET_JSON | jq -r .ECR_URL)" >> $GITHUB_ENV
         echo "EKS_CLUSTER_NAME=$(echo $SECRET_JSON | jq -r .EKS_CLUSTER_NAME)" >> $GITHUB_ENV
+
+    - name: Replace ECR URL placeholder in manifests
+      run: |
+        echo "Replacing REPLACE_ECR_URL with $ECR_URL in manifests"
+        sed -i "s|REPLACE_ECR_URL|${ECR_URL}|g" deployment.yaml || true
+        sed -i "s|REPLACE_ECR_URL|${ECR_URL}|g" service.yaml || true
 
     - name: Log in to Amazon ECR
       run: |
@@ -95,7 +101,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: us-east-1
 
     - name: Setup Terraform
@@ -125,7 +131,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: us-east-1
 
     - name: Setup Terraform
@@ -154,7 +160,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::796973493835:role/GitHubActionsRole
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: us-east-1
 
     - name: Debug AWS STS Identity

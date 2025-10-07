@@ -35,12 +35,16 @@ module "vpc" {
   }
 }
 
+
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.1"
 
   cluster_name                   = local.name
   cluster_endpoint_public_access = true
+
+  # cluster_encryption_config eliminado para no usar KMS
 
   cluster_addons = {
     coredns    = { most_recent = true }
@@ -68,7 +72,7 @@ module "eks" {
   # Configuración del mapeo de identidad IAM para GitHub Actions
   aws_auth_roles = [
     {
-      rolearn  = "arn:aws:iam::796973493835:role/GitHubActionsRole"
+      rolearn  = var.github_actions_role_arn
       username = "githubactions"
       groups   = ["system:masters"]
     }
