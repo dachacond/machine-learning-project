@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: ml-scoring-api
-          image: 796973493835.dkr.ecr.us-east-1.amazonaws.com/ml-scoring-api  # Imagen Docker desde Amazon ECR
+          # NOTE: placeholder image. The CI pipeline replaces REPLACE_ECR_URL with the real ECR URL before applying.
+          image: REPLACE_ECR_URL/ml-scoring-api:latest  # Imagen Docker desde Amazon ECR (reemplazar en CI)
           ports:
             - containerPort: 8888  # Puerto que expone la aplicación dentro del contenedor
           env:

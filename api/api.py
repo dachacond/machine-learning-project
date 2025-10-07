@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import joblib
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 # Inicializar la aplicación FastAPI
@@ -26,8 +28,14 @@ class ScoringRequest(BaseModel):
 EXPECTED_COLUMNS = ["x1", "x2", "x3", "x4", "x5", "x6", "x7"]
 
 # Endpoint de prueba
+app.mount('/static', StaticFiles(directory=os.path.join(BASE_DIR, 'static')), name='static')
+
+
 @app.get("/")
 def read_root():
+    index_path = os.path.join(BASE_DIR, 'static', 'index.html')
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
     return {"message": "API para Scoring activa"}
 
 # Endpoint para realizar scoring
@@ -45,6 +53,29 @@ def score(request: ScoringRequest):
 
         # Devolver las predicciones
         return {"predictions": predictions.tolist()}
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error en el formato de los datos: {ve}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error durante el scoring: {e}"
+        )
+
+
+@app.post("/score_proba")
+def score_proba(request: ScoringRequest):
+    """Devuelve la predicción (0/1) y la probabilidad P(y=1) para cada fila del request."""
+    try:
+        data_df = pd.DataFrame(request.data, columns=EXPECTED_COLUMNS)
+        data_processed = preprocessor.transform(data_df)
+
+        predictions = model.predict(data_processed)
+        proba = model.predict_proba(data_processed)[:, 1]
+
+        return {"predictions": predictions.tolist(), "probabilities": proba.tolist()}
     except ValueError as ve:
         raise HTTPException(
             status_code=400,

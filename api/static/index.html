@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scoring UI</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <main>
+      <h1>ML Scoring</h1>
+      <form id="score-form">
+        <p>Introduce una fila de datos separados por comas (7 columnas):</p>
+        <textarea id="input-data" placeholder="1.503407,15.165184,Monday,0.848177,112.883872,New Mexico,toyota"></textarea>
+        <div style="margin-top:8px;">
+          <button type="submit">Enviar</button>
+        </div>
+        <div style="margin-top:8px;">
+          <label><input id="show-raw" type="checkbox" /> Mostrar JSON crudo</label>
+        </div>
+      </form>
+
+      <section id="result">
+        <h2>Resultado</h2>
+        <div><strong>Notas:</strong> la probabilidad es P(y=1). La predicción por defecto usa umbral 0.50, puedes cambiarlo arriba.</div>
+        <pre id="output">Esperando...</pre>
+      </section>
+    </main>
+    <script src="/static/app.js?v=4"></script>
+  </body>
+</html>
