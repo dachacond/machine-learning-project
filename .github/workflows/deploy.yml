@@ -98,7 +98,7 @@ jobs:
 
     - name: Terraform Init
       working-directory: ./terraform
-      run: terraform init
+      run: terraform init -input=false -upgrade
 
     - name: Terraform Apply
       id: terraform-apply
@@ -128,7 +128,7 @@ jobs:
 
     - name: Terraform Init
       working-directory: ./terraform
-      run: terraform init
+      run: terraform init -input=false -upgrade
 
     - name: Terraform Destroy for Cleanup
       working-directory: ./terraform
@@ -194,7 +194,7 @@ jobs:
 
     - name: Terraform Init
       working-directory: ./terraform
-      run: terraform init
+      run: terraform init -input=false -upgrade
 
     - name: Terraform Destroy
       working-directory: ./terraform
