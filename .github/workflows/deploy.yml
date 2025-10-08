@@ -100,10 +100,14 @@ jobs:
       working-directory: ./terraform
       run: terraform init -input=false -upgrade
 
+    - name: Set KMS ARN env
+      working-directory: ./terraform
+      run: echo "KMS_KEY_ARN=${{ secrets.KMS_KEY_ARN }}" >> $GITHUB_ENV
+
     - name: Terraform Apply
       id: terraform-apply
       working-directory: ./terraform
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve -var "kms_key_arn=$KMS_KEY_ARN"
       
   terraform-cleanup:
     name: Terraform Cleanup on Failure
@@ -130,9 +134,13 @@ jobs:
       working-directory: ./terraform
       run: terraform init -input=false -upgrade
 
+    - name: Set KMS ARN env
+      working-directory: ./terraform
+      run: echo "KMS_KEY_ARN=${{ secrets.KMS_KEY_ARN }}" >> $GITHUB_ENV
+
     - name: Terraform Destroy for Cleanup
       working-directory: ./terraform
-      run: terraform destroy -auto-approve
+      run: terraform destroy -auto-approve -var "kms_key_arn=$KMS_KEY_ARN"
 
   deploy:
     name: Deploy to AWS EKS
@@ -196,9 +204,13 @@ jobs:
       working-directory: ./terraform
       run: terraform init -input=false -upgrade
 
+    - name: Set KMS ARN env
+      working-directory: ./terraform
+      run: echo "KMS_KEY_ARN=${{ secrets.KMS_KEY_ARN }}" >> $GITHUB_ENV
+
     - name: Terraform Destroy
       working-directory: ./terraform
-      run: terraform destroy -auto-approve
+      run: terraform destroy -auto-approve -var "kms_key_arn=$KMS_KEY_ARN"
 
 
 
