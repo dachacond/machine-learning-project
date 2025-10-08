@@ -87,5 +87,7 @@ module "eks" {
     provider_key_arn = var.kms_key_arn
   }
   # If you want CloudWatch log groups encrypted with the same key, set this as well
-  cloudwatch_log_group_kms_key_id = var.kms_key_arn
+  # Use the KeyId (not the ARN) when providing a key for CloudWatch log group encryption.
+  # Pass `var.kms_key_id` (extract KeyId from ARN if necessary) so the module can use it.
+  cloudwatch_log_group_kms_key_id = var.kms_key_id
 }

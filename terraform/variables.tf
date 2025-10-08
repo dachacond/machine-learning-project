@@ -15,3 +15,9 @@ variable "kms_key_arn" {
   type        = string
   default     = ""
 }
+
+variable "kms_key_id" {
+  description = "KeyId (not ARN) of the pre-created KMS key to use specifically for CloudWatch log group encryption. If empty, cloudwatch log groups will not be encrypted with a customer key."
+  type        = string
+  default     = ""
+}
