@@ -79,4 +79,13 @@ module "eks" {
   ]
 
   tags = local.tags
+  # Use an existing KMS key (provided via var.kms_key_arn) for cluster secret encryption and
+  # CloudWatch log group encryption. Disable creation of a new KMS key in the module.
+  create_kms_key = false
+  cluster_encryption_config = {
+    resources = ["secrets"]
+    provider_key_arn = var.kms_key_arn
+  }
+  # If you want CloudWatch log groups encrypted with the same key, set this as well
+  cloudwatch_log_group_kms_key_id = var.kms_key_arn
 }
